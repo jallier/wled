@@ -1,0 +1,71 @@
+---
+kind: pipeline
+type: docker
+name: rebase
+
+platform:
+  arch: amd64
+  os: linux
+
+trigger:
+  event:
+    - cron
+  cron:
+    - weekly
+
+steps:
+- name: rebase-upstream
+  image: alpine/git
+  commands:
+  - git remote add upstream https://github.com/Aircoookie/WLED.git
+  - git fetch upstream
+  - git checkout main
+  - git rebase upstream/main
+  # Push the rebased branch to your origin repository
+  - |
+    if [ $? -eq 0 ]; then
+      echo "Rebase successful. Pushing changes."
+      git push origin main --force-with-lease
+      # Create a new tag based on the current date (e.g., vYYYYMMDD)
+      TAG="v$(date +%Y%m%d)"
+      echo "Creating new tag: $TAG"
+      git tag -a "$TAG" -m "Automated tag for release on $(date)"
+      git push origin "$TAG"
+    else
+      echo "Rebase failed. Please resolve conflicts."
+    fi
+
+
+---
+kind: pipeline
+type: docker
+name: release
+
+platform:
+  arch: amd64
+  os: linux
+
+trigger:
+  event:
+    - tag
+
+steps:
+- name: Setup node
+  image: node:20-alpine
+  commands:
+    - npm ci
+    - npm run build
+
+- name: Build with PlatformIO
+  image: python:3.12
+  commands:
+    - pip install -r requirements.txt
+    - pio run -e esp32dev
+
+- name: gitea_release
+  image: plugins/gitea-release
+  settings:
+    api_key: 
+      from_secret: gitea_release_key
+    base_url: https://git.jallier.xyz
+    files: build_output/release/*.bin
