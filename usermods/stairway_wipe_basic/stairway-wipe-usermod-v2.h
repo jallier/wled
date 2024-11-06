@@ -18,7 +18,7 @@ private:
   unsigned long lastTime = 0;
   byte wipeState = 0; // 0: inactive 1: wiping 2: solid
   unsigned long timeStaticStart = 0;
-  uint16_t previousUserVar0 = 0;
+  uint16_t previousUserVar0 = 0; // -> previousWipeVar
 
   // moved to buildflag
   // comment this out if you want the turn off effect to be just fading out instead of reverse wipe
@@ -33,6 +33,13 @@ public:
     // has to be set to 1 if movement is detected on the PIR that is the same side of the staircase as the ESP8266
     // has to be set to 2 if movement is detected on the PIR that is the opposite side
     // can be set to 0 if no movement is detected. Otherwise LEDs will turn off after a configurable timeout (userVar1 seconds)
+
+    // wipe state:
+    // 0: inactive
+    // 1: wipe on
+    // 2: static/hold light on
+    // 3: wipe off
+    // 4: wiping completed, turn off
 
     if (userVar0 > 0)
     {
