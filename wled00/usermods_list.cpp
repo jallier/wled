@@ -1,5 +1,5 @@
 #include "wled.h"
-#include "../usermods/Animated_Staircase/Animated_Staircase.h"
+// #include "../usermods/Animated_Staircase/Animated_Staircase.h"
 /*
  * Register your v2 usermods here!
  *   (for v1 usermods using just usermod.cpp, you can ignore this file)
@@ -243,6 +243,10 @@
 #include "../usermods/LD2410_v2/usermod_ld2410.h"
 #endif
 
+#ifdef USERMOD_ANIMATED_STAIRCASE_WIPE
+  #include "../usermods/Animated_Staircase_Wipe/Animated_Staircase_Wipe.h"
+#endif
+
 void registerUsermods()
 {
 /*
@@ -472,5 +476,9 @@ void registerUsermods()
   UsermodManager::add(new PovDisplayUsermod());
   #endif
 
-  usermods.add(new Animated_Staircase());
+  #ifdef USERMOD_ANIMATED_STAIRCASE_WIPE
+  UsermodManager::add(new Animated_Staircase_Wipe());
+  #endif
+
+  // usermods.add(new Animated_Staircase());
 }
