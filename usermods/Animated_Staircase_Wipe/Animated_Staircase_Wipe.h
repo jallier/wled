@@ -14,16 +14,16 @@ class Animated_Staircase_Wipe : public Usermod
 {
 private:
   /* configuration (available in API and stored in flash) */
-  bool enabled = false;                 // Enable this usermod
-  int8_t topPIRorTriggerPin = -1;       // disabled
-  int8_t bottomPIRorTriggerPin = -1;    // disabled
-  int8_t topEchoPin = -1;               // disabled
-  int8_t bottomEchoPin = -1;            // disabled
-  bool useUSSensorTop = false;          // using PIR or UltraSound sensor?
-  bool useUSSensorBottom = false;       // using PIR or UltraSound sensor?
-  unsigned int topMaxDist = 50;         // default maximum measured distance in cm, top
-  unsigned int bottomMaxDist = 50;      // default maximum measured distance in cm, bottom
-  bool togglePower = false;             // toggle power on/off with staircase on/off
+  bool enabled = false;              // Enable this usermod
+  int8_t topPIRorTriggerPin = -1;    // disabled
+  int8_t bottomPIRorTriggerPin = -1; // disabled
+  int8_t topEchoPin = -1;            // disabled
+  int8_t bottomEchoPin = -1;         // disabled
+  bool useUSSensorTop = false;       // using PIR or UltraSound sensor?
+  bool useUSSensorBottom = false;    // using PIR or UltraSound sensor?
+  unsigned int topMaxDist = 50;      // default maximum measured distance in cm, top
+  unsigned int bottomMaxDist = 50;   // default maximum measured distance in cm, bottom
+  bool togglePower = false;          // toggle power on/off with staircase on/off
 
   /* runtime variables */
   bool initDone = false;
@@ -284,13 +284,13 @@ private:
 
     if (userWipeVar > WIPE_OFF)
     {
-      // if (
-      //     (previousWipeVar == WIPE_UP && userWipeVar == WIPE_DOWN) ||
-      //     (previousWipeVar == WIPE_DOWN && userWipeVar == WIPE_UP))
-      // {
-      //   // turn off if other PIR triggered
-      //   // wipeState = WIPE_STATE_WIPING_OFF;
-      // }
+      // If the current primary and secondary colors are black, dont bother with the wipe
+      if (col[0] == 0 && col[1] == 0 && col[2] == 0 && col[3] == 0 && colSec[0] == 0 && colSec[1] == 0 && colSec[2] == 0 && colSec[3] == 0)
+      {
+        userWipeVar = WIPE_OFF;
+        return;
+      }
+
       previousWipeVar = userWipeVar;
 
       if (wipeState == WIPE_STATE_INACTIVE) // Start wipe
