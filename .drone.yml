@@ -10,8 +10,11 @@ platform:
 trigger:
   event:
     - cron
+    - push
   cron:
     - weekly
+  branch:
+    - main
 
 steps:
 - name: rebase-upstream
