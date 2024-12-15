@@ -26,6 +26,11 @@ steps:
     if [ $? -eq 0 ]; then
       echo "Rebase successful. Pushing changes."
       git push origin main --force-with-lease
+      # Create a new tag based on the current date (e.g., vYYYYMMDD)
+      TAG="v$(date +%Y%m%d)"
+      echo "Creating new tag: $TAG"
+      git tag -a "$TAG" -m "Automated tag for release on $(date)"
+      git push origin "$TAG"
     else
       echo "Rebase failed. Please resolve conflicts."
     fi
@@ -41,9 +46,7 @@ platform:
 
 trigger:
   event:
-    - push
-  branch:
-    - main
+    - tag
 
 steps:
 - name: Setup node
