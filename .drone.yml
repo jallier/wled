@@ -9,7 +9,7 @@ platform:
 
 trigger:
   event:
-    - cron
+    # - cron
     - push
   cron:
     - weekly
@@ -37,7 +37,7 @@ steps:
     else
       echo "Rebase failed. Please resolve conflicts."
     fi
-    
+
 
 ---
 kind: pipeline
