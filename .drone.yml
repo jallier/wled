@@ -34,7 +34,38 @@ steps:
     else
       echo "Rebase failed. Please resolve conflicts."
     fi
+- name: discord_notification_rebase_success
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+      from_secret: discord_webhook_id
+    webhook_token:
+      from_secret: discord_webhook_token
+    message: >
+      ✅ Weekly WLED rebase completed successfully!
+      
+      🔄 Rebased from upstream and created new tag: ${TAG}
+      📅 Date: $(date)
+  when:
+    status:
+      - success
 
+- name: discord_notification_rebase_failure
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+      from_secret: discord_webhook_id
+    webhook_token:
+      from_secret: discord_webhook_token
+    message: >
+      ❌ Weekly WLED rebase failed!
+      
+      🔄 There might be conflicts that need manual resolution.
+      🛠️ Check the build logs: https://ci.jallier.xyz/jallier/wled/${DRONE_BUILD_NUMBER}
+      📅 Date: $(date)
+  when:
+    status:
+      - failure
 
 ---
 kind: pipeline
@@ -69,3 +100,35 @@ steps:
       from_secret: gitea_release_key
     base_url: https://git.jallier.xyz
     files: build_output/release/*.bin
+
+- name: discord_notification_success
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+      from_secret: discord_webhook_id
+    webhook_token:
+      from_secret: discord_webhook_token
+    message: >
+      ✅ New WLED release deployed successfully!
+      
+      📦 Version: ${DRONE_TAG}
+      🔗 Download: https://git.jallier.xyz/jallier/wled/releases/tag/${DRONE_TAG}
+  when:
+    status:
+      - success
+
+- name: discord_notification_failure
+  image: appleboy/drone-discord
+  settings:
+    webhook_id:
+      from_secret: discord_webhook_id
+    webhook_token:
+      from_secret: discord_webhook_token
+    message: >
+      ❌ WLED release build failed!
+      
+      📦 Version: ${DRONE_TAG}
+      🛠️ Check the build logs: https://ci.jallier.xyz/jallier/wled/${DRONE_BUILD_NUMBER}
+  when:
+    status:
+      - failure
