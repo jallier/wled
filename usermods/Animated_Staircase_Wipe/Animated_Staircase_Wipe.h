@@ -285,7 +285,7 @@ private:
     if (userWipeVar > WIPE_OFF)
     {
       // If the current primary and secondary colors are black, dont bother with the wipe
-      if (col[0] == 0 && col[1] == 0 && col[2] == 0 && col[3] == 0 && colSec[0] == 0 && colSec[1] == 0 && colSec[2] == 0 && colSec[3] == 0)
+      if (colPri[0] == 0 && colPri[1] == 0 && colPri[2] == 0 && colPri[3] == 0 && colSec[0] == 0 && colSec[1] == 0 && colSec[2] == 0 && colSec[3] == 0)
       {
         userWipeVar = WIPE_OFF;
         return;
@@ -655,3 +655,6 @@ const char Animated_Staircase_Wipe::_topEchoCm[] PROGMEM = "top-dist-cm";
 const char Animated_Staircase_Wipe::_bottomEchoCm[] PROGMEM = "bottom-dist-cm";
 const char Animated_Staircase_Wipe::_togglePower[] PROGMEM = "toggle-on-off";
 const char Animated_Staircase_Wipe::_onTime[] PROGMEM = "on-time";
+
+static Animated_Staircase_Wipe animated_staircase_wipe;
+REGISTER_USERMOD(animated_staircase_wipe);
