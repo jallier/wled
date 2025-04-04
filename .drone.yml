@@ -40,7 +40,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ✅ Weekly WLED rebase completed successfully!
       
@@ -56,12 +56,12 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ❌ Weekly WLED rebase failed!
       
       🔄 There might be conflicts that need manual resolution.
-      🛠️ Check the build logs: https://ci.jallier.xyz/jallier/wled/${DRONE_BUILD_NUMBER}
+      🛠️ Check the build logs: https://drone.jallier.xyz/jallier/wled/${DRONE_BUILD_NUMBER}
       📅 Date: $(date)
   when:
     status:
@@ -90,6 +90,7 @@ steps:
 - name: Build with PlatformIO
   image: python:3.12
   commands:
+    - apt-get update && apt-get install -y nodejs npm
     - pip install -r requirements.txt
     - pio run -e esp32dev
 
@@ -107,7 +108,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ✅ New WLED release deployed successfully!
       
@@ -123,12 +124,12 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ❌ WLED release build failed!
       
       📦 Version: ${DRONE_TAG}
-      🛠️ Check the build logs: https://ci.jallier.xyz/jallier/wled/${DRONE_BUILD_NUMBER}
+      🛠️ Check the build logs: https://drone.jallier.xyz/jallier/wled/${DRONE_BUILD_NUMBER}
   when:
     status:
       - failure
