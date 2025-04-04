@@ -40,7 +40,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ✅ Weekly WLED rebase completed successfully!
       
@@ -56,7 +56,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ❌ Weekly WLED rebase failed!
       
@@ -81,16 +81,25 @@ trigger:
     - tag
 
 steps:
-- name: Setup node
+- name: Build WLED
   image: node:20-alpine
   commands:
+    # Setup Node.js dependencies
     - npm ci
     - npm run build
-
-- name: Build with PlatformIO
-  image: python:3.12
-  commands:
-    - pip install -r requirements.txt
+    
+    # Install Python and PlatformIO dependencies
+    - apk add --no-cache python3 py3-pip git
+    # - python3 -m pip install --upgrade pip
+    # - python3 -m pip install platformio
+    
+    # Verify installations
+    - node --version
+    - python3 --version
+    - pio --version
+    
+    # Build with PlatformIO
+    - python3 -m pip install -r requirements.txt
     - pio run -e esp32dev
 
 - name: gitea_release
@@ -107,7 +116,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ✅ New WLED release deployed successfully!
       
@@ -123,7 +132,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ❌ WLED release build failed!
       
