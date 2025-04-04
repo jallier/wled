@@ -40,7 +40,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ✅ Weekly WLED rebase completed successfully!
       
@@ -56,7 +56,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ❌ Weekly WLED rebase failed!
       
@@ -90,6 +90,7 @@ steps:
 - name: Build with PlatformIO
   image: python:3.12
   commands:
+    - apt update && apt install -y nodejs
     - pip install -r requirements.txt
     - pio run -e esp32dev
 
@@ -107,7 +108,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ✅ New WLED release deployed successfully!
       
@@ -123,7 +124,7 @@ steps:
     webhook_id:
       from_secret: discord_webhook_id
     webhook_token:
-      from_secret: discord_webhook_token
+      from_secret: discord_webhook_secret
     message: >
       ❌ WLED release build failed!
       
