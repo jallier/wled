@@ -8,6 +8,9 @@
  * See the accompanying README.md file for more info.
  */
 #include "wled.h"
+#ifdef STAIRCASE_INCLUDE_LUX
+#include <BH1750_v2.h>
+#endif
 
 class Animated_Staircase_Wipe : public Usermod
 {
@@ -23,6 +26,10 @@ private:
   unsigned int topMaxDist = 50;      // default maximum measured distance in cm, top
   unsigned int bottomMaxDist = 50;   // default maximum measured distance in cm, bottom
   bool togglePower = false;          // toggle power on/off with staircase on/off
+#ifdef STAIRCASE_INCLUDE_LUX
+  Usermod_BH1750 *bh1750UserMod;
+  float daylightLuxThreshold = 100.0; // threshold for daylight lux, above this the staircase will not turn on
+#endif
 
   /* runtime variables */
   bool initDone = false;
@@ -96,6 +103,9 @@ private:
   static const char _bottomEchoCm[];
   static const char _togglePower[];
   static const char _onTime[];
+#ifdef STAIRCASE_INCLUDE_LUX
+  static const char _daylightLuxThreshold[];
+#endif
 
   void publishMqtt(bool bottom, const char *state)
   {
@@ -165,6 +175,22 @@ private:
   {
     bool sensorChanged = false;
     unsigned long millisCount = millis();
+
+#ifdef STAIRCASE_INCLUDE_LUX
+    // check lux
+    if (bh1750UserMod != nullptr)
+    {
+      float currentLux = bh1750UserMod->getIlluminance();
+      if (currentLux > daylightLuxThreshold)
+      {
+        // If its too light, reset the state vars and don't turn on the lights
+        bottomSensorWrite = false;
+        topSensorWrite = false;
+        return false;
+      }
+    }
+#endif
+
     if (
         (!on && (millisCount - lastScanTime) > scanDelay) || (on && (millisCount - lastScanTime) > scanDelay * 10) // check less often when on
     )
@@ -232,6 +258,15 @@ private:
   {
     staircase[F("top-sensor")] = topSensorRead;
     staircase[F("bottom-sensor")] = bottomSensorRead;
+
+#ifdef STAIRCASE_INCLUDE_LUX
+    float lux;
+    if (bh1750UserMod != nullptr)
+    {
+      lux = bh1750UserMod->getIlluminance();
+    }
+    staircase[F("lux")] = lux;
+#endif
   }
 
   // allow overrides from JSON API
@@ -352,6 +387,9 @@ private:
 public:
   void setup()
   {
+#ifdef STAIRCASE_INCLUDE_LUX
+    bh1750UserMod = (Usermod_BH1750 *)UsermodManager::lookup(USERMOD_ID_BH1750);
+#endif
     // standardize invalid pin numbers to -1
     if (topPIRorTriggerPin < 0)
       topPIRorTriggerPin = -1;
@@ -506,6 +544,9 @@ public:
     staircase[FPSTR(_bottomEchoCm)] = bottomMaxDist;
     staircase[FPSTR(_togglePower)] = togglePower;
     staircase[FPSTR(_onTime)] = userWipeOffTime;
+#ifdef STAIRCASE_INCLUDE_LUX
+    staircase[FPSTR(_daylightLuxThreshold)] = daylightLuxThreshold;
+#endif
     DEBUG_PRINTLN(F("Staircase config saved."));
   }
 
@@ -549,6 +590,10 @@ public:
     togglePower = top[FPSTR(_togglePower)] | togglePower; // staircase toggles power on/off
 
     userWipeOffTime = top[FPSTR(_onTime)] | userWipeOffTime; // staircase toggles power on/off
+
+#ifdef STAIRCASE_INCLUDE_LUX
+    daylightLuxThreshold = top[FPSTR(_daylightLuxThreshold)] | daylightLuxThreshold; // threshold for daylight lux, above this the staircase will not turn on
+#endif
 
     DEBUG_PRINT(FPSTR(_name));
     if (!initDone)
@@ -654,6 +699,9 @@ const char Animated_Staircase_Wipe::_topEchoCm[] PROGMEM = "top-dist-cm";
 const char Animated_Staircase_Wipe::_bottomEchoCm[] PROGMEM = "bottom-dist-cm";
 const char Animated_Staircase_Wipe::_togglePower[] PROGMEM = "toggle-on-off";
 const char Animated_Staircase_Wipe::_onTime[] PROGMEM = "on-time";
+#ifdef STAIRCASE_INCLUDE_LUX
+const char Animated_Staircase_Wipe::_daylightLuxThreshold[] PROGMEM = "daylight-lux-threshold";
+#endif
 
 static Animated_Staircase_Wipe animated_staircase_wipe;
 REGISTER_USERMOD(animated_staircase_wipe);
